@@ -2,31 +2,20 @@ const express = require("express");
 
 const app = express();
 
+// using this url http://localhost:3000/user?userId=100&name=lak will give in console userId=100  name=lak
 app.get("/user",(req,res)=>{
+    console.log(req.query)
     res.send("get call from user");
 })
+// using this url http://localhost:3000/user/100/lak will give in console userid:100 and name:lak 
+// app.get("/user/:userId/:name",(req,res)=>{
+//     console.log(req.params);
+//     res.send("get call from user");
+// })
+// app.get("/user",(req,res)=>{
+//     res.send("get call from user");
+// })
 
-app.post("/user",(req,res)=>{
-    res.send("post call from user");
-})
-
-app.delete("/user",(req,res)=>{
-    res.send("delete call from user");
-})
-
-app.patch("/user",(req,res)=>{
-    res.send("patch call from user");
-})
-
-app.head("/user",(req,res)=>{
-    res.send("head call from user");
-})
-
-
-
-app.use("/test/hello",(req,res)=>{
-    res.send("hello from hello")
-})
 
 app.listen(3000,()=>{
     console.log("server started")
