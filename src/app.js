@@ -1,7 +1,7 @@
 const express = require("express");
 
 const app = express();
-const {adminAuth, userAuth } = require("./middleware/auth")
+//const {adminAuth, userAuth } = require("./middleware/auth")
 
 // using this url http://localhost:3000/user?userId=100&name=lak will give in console userId=100  name=lak
 // app.get("/user",(req,res,next)=>{
@@ -15,17 +15,17 @@ const {adminAuth, userAuth } = require("./middleware/auth")
 // })
 
 
-app.get("/admin",adminAuth);
-app.use("/admin/getAllData",adminAuth,(req,res)=>{
-    res.send("hello from getalldata")
-})
+// app.get("/admin",adminAuth);
+// app.use("/admin/getAllData",adminAuth,(req,res)=>{
+//     res.send("hello from getalldata")
+// })
 
-app.use("/user/login",(req,res)=>{
-    res.send("please login with your details")
-})
-app.use("/user",userAuth,(req,res)=>{
-    res.send("user here");
-})
+// app.use("/user/login",(req,res)=>{
+//     res.send("please login with your details")
+// })
+// app.use("/user",userAuth,(req,res)=>{
+//     res.send("user here");
+// })
 
 
 
@@ -58,6 +58,17 @@ app.use("/user",userAuth,(req,res)=>{
 // app.get("/user",(req,res)=>{
 //     res.send("get call from user");
 // })
+
+
+//code for error handling
+app.use("/user",(req,res,next)=>{
+    throw new Error(",hfkgc")
+})
+app.use("/",(err,req,res,next)=>{
+    if(err){
+        res.status(500).send("something went wrong");
+    }
+})
 
 
 app.listen(3000,()=>{
