@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator")
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -19,7 +20,12 @@ const userSchema = new mongoose.Schema({
         minLength: 3,
         maxLength: 50,
         trim:true,
-        lowercase:true
+        lowercase:true,
+        validate(value){
+            if(!validator.isEmail(value)){
+                throw new Error("invalid email:" + value)
+            }
+        }
     },
     password:{
         type:String,
@@ -39,7 +45,12 @@ const userSchema = new mongoose.Schema({
     },
     photoUrl:{
         type:String,
-        default:"https://hancockogundiyapartners.com/wp-content/uploads/2019/07/dummy-profile-pic-300x300.jpg"
+        default:"https://hancockogundiyapartners.com/wp-content/uploads/2019/07/dummy-profile-pic-300x300.jpg",
+         validate(value){
+            if(!validator.isURL(value)){
+                throw new Error("invalid email:" + value)
+            }
+        }
     },
     about:{
         type:String,
