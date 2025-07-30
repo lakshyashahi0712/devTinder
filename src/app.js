@@ -1,14 +1,17 @@
 const express = require("express");
 const { connectDB } = require("./config/database");
 const { User } = require("./models/user");
+const {userAuth} = require("./middleware/auth")
 const {validateSignUpData} = require("./utils/validate")
 const bcrypt = require("bcrypt")
-
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken")
 
 const app = express();
 console.log("✅ App instance created");
 
 app.use(express.json());
+app.use(cookieParser());
 console.log("✅ Middleware added");
 
 
@@ -34,7 +37,6 @@ try{
 })
 
 
-
 app.post("/login",async(req,res)=>{
   try{
   const {email,password} = req.body;
@@ -43,8 +45,14 @@ app.post("/login",async(req,res)=>{
   if(!user){
     throw new Error("invalid credintials");
   }
-  const isPasswordValid = await bcrypt.compare(password,user.password);
+  const isPasswordValid = await user.validatePassword(password);
   if(isPasswordValid){
+    //CREATE A JWT TOKEN
+    const token = await user.getJWT();
+   
+   
+    //add token to cookie and send response back to user 
+    res.cookie("token",token);
     res.send("login success")
   } else{
     throw new Error("invalid credintials")
@@ -53,6 +61,18 @@ app.post("/login",async(req,res)=>{
   res.status(400).send("error saving the user" + err.message);
 }
 })
+
+
+app.get("/profile",userAuth, async(req,res)=>{
+  try{
+    const user = req.user
+    res.send(user);
+  }catch(err){
+
+    res.status(404).send("error")
+  }
+})
+
 
 app.get("/user",async(req,res)=>{
   const userEmail = req.body.email;
@@ -69,6 +89,7 @@ app.get("/user",async(req,res)=>{
     res.status(400).send("something went wrong")
   }
 })
+
 
 //update data of user
 app.patch("/user/:userId", async(req,res)=>{
@@ -106,23 +127,7 @@ app.delete("/user", async(req,res)=>{
   }
 })
 
-// // Test root route to confirm server is alive
-// app.get("/", (req, res) => {
-//   res.send("Server is running!");
-// });
 
-// // Signup route
-// app.post("/signup", async (req, res) => {
-//   console.log("📩 POST /signup hit");
-//   const user = new User(req.body);
-//   try {
-//     await user.save();
-//     res.send("User added successfully");
-//   } catch (err) {
-//     console.error("❌ Error saving user:", err.message);
-//     res.status(400).send("Error saving the user");
-//   }
-// });
 
 console.log("🧠 Connecting to DB...");
 connectDB()
