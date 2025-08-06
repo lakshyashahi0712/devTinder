@@ -21,6 +21,8 @@ const connectionRequestSchema= new mongoose.Schema({
     timestamps: true
 });
 
+connectionRequestSchema.index({fromUserId:1 , toUserId:1});// this is called index which make the app faster 
+
 const ConnectionRequestModel = new mongoose.model("ConnectionRequestModel" , connectionRequestSchema);
 
 module.exports = ConnectionRequestModel
