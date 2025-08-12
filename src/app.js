@@ -8,7 +8,8 @@ const cookieParser = require("cookie-parser");
 //const jwt = require("jsonwebtoken")
 const authRouter = require("./routes/auth")
 const profileRouter = require("./routes/profile")
-const requestRouter = require("./routes/request")
+const requestRouter = require("./routes/request");
+const userRouter = require("./routes/user");
 
 const app = express();
 console.log("✅ App instance created");
@@ -20,6 +21,7 @@ console.log("✅ Middleware added");
 app.use("/",authRouter)
 app.use("/",profileRouter)
 app.use("/",requestRouter)
+app.use("/",userRouter)
 
 
 console.log("🧠 Connecting to DB...");
