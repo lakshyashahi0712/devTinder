@@ -16,22 +16,25 @@ profileRouter.get("/profile/view",userAuth, async(req,res)=>{
 })
 
 profileRouter.patch("/profile/edit", userAuth , async(req,res)=>{
+
   try{
+    console.log("👉 Incoming PATCH body:", req.body);
   if(!validateEditProfileData(req)){
-    throw new Error("invalid edit request")
+    throw new Error("Invalid edit request - only allowed fields: firstName, lastName, email, about, gender, age, photoUrl, skills")
   }
 
   const loggedInUser = req.user;
 
   Object.keys(req.body).forEach((key)=>(loggedInUser[key] = req.body[key]));
-  await loggedInUser .save();
+  await loggedInUser.save();
  
   res.json({
-    message: `${loggedInUser} , your profile is updated`,
+    message: `${loggedInUser.firstName}, your profile is updated`,
     data: loggedInUser
   })
 }catch(err){
-  res.status(400).send("error")
+  console.error("❌ Profile edit error:", err.message);
+  res.status(400).json({ error: err.message })
 }
 })
 
