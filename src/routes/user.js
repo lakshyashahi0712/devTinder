@@ -42,11 +42,11 @@ userRouter.get("/user/connections" , userAuth , async(req,res)=>{
     }).populate("fromUserId" , USER_SAFE_DATA).populate("toUserId" , USER_SAFE_DATA);
 
     const data = connectionRequests.map(row => {
-        if(row.toUserId._id.toString() === loggedInUser._id.toString()){
-            return row.toUserId;
-        }
-        return row.fromUserId;
-    });
+    if (row.toUserId._id.toString() === loggedInUser._id.toString()) {
+        return row.fromUserId; // ✅ return the other person
+    }
+    return row.toUserId;       // ✅ return the other person
+});
     
     res.json({data})
 }catch(err){

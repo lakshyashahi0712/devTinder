@@ -19,7 +19,14 @@ try{
   //creating new instance for user model
   const user = new User({firstName , lastName , email , password:paswordHash})
 
-    await user.save();
+    const savedUser = await user.save();
+     const token = await savedUser.getJWT();
+   
+   
+    //add token to cookie and send response back to user 
+    res.cookie("token",token);
+    res.json({message : "user added successfully" , data: savedUser})
+
     res.send("user added successfully");
   }catch(err){
     res.status(400).send("error saving the user" + err.message);
