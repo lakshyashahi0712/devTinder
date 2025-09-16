@@ -4,6 +4,7 @@ const { connectDB } = require("./config/database");
 // const {userAuth} = require("./middleware/auth")
 // const {validateSignUpData} = require("./utils/validate")
 //const bcrypt = require("bcrypt")
+
 const cookieParser = require("cookie-parser");
 //const jwt = require("jsonwebtoken")
 const authRouter = require("./routes/auth")
@@ -12,6 +13,8 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const uploadRouter = require("./routes/upload");
 const cors = require("cors")
+require("dotenv").config();
+
 
 const app = express();
 console.log("✅ App instance created");
@@ -35,7 +38,7 @@ console.log("🧠 Connecting to DB...");
 connectDB()
   .then(() => {
     console.log("✅ MongoDB connected");
-    app.listen(3000, () => {
+    app.listen(process.env.PORT, () => {
       console.log("🚀 Server started on http://localhost:3000");
     });
   })
