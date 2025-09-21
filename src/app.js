@@ -1,3 +1,6 @@
+// Load environment variables FIRST
+require("dotenv").config();
+
 const express = require("express");
 const { connectDB } = require("./config/database");
 // const { User } = require("./models/user");
@@ -13,7 +16,7 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const uploadRouter = require("./routes/upload");
 const cors = require("cors")
-require("dotenv").config();
+require("./utils/cronjob")
 
 
 const app = express();
@@ -38,7 +41,7 @@ console.log("🧠 Connecting to DB...");
 connectDB()
   .then(() => {
     console.log("✅ MongoDB connected");
-    app.listen(process.env.PORT, () => {
+    app.listen(process.env.PORT || 3000, () => {
       console.log("🚀 Server started on http://localhost:3000");
     });
   })

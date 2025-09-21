@@ -3,8 +3,50 @@ const express = require("express");
 const { userAuth } = require("../middleware/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const { User } = require("../models/user");
+const {run } = require("../utils/mailer");
+const { testCronJob } = require("../utils/cronjob");
+
 
 const requestRouter  = express.Router();
+
+// Test email endpoint
+requestRouter.post("/test-email", userAuth, async (req, res) => {
+  try {
+    const testResult = await run(
+      "Test Email from DevTinder",
+      "This is a test email to verify your mailer configuration is working!",
+      req.user.email
+    );
+    
+    res.json({
+      message: "Test email sent successfully!",
+      messageId: testResult.messageId
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to send test email",
+      details: error.message
+    });
+  }
+});
+
+// Test cron job endpoint
+requestRouter.post("/test-cron", userAuth, async (req, res) => {
+  try {
+    const emailList = await testCronJob();
+    
+    res.json({
+      message: "Cron job test completed!",
+      emailsFound: emailList || [],
+      count: emailList ? emailList.length : 0
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to test cron job",
+      details: error.message
+    });
+  }
+});
 
 requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
 
@@ -46,7 +88,19 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
     })
    
     const data = await connectionRequest.save();
-    
+
+    try {
+      await run(
+        "New Connection Request",
+        `${req.user.firstName} is ${status} in ${toUser.firstName}`,
+        toUser.email
+      );
+      console.log("✅ Email notification sent successfully");
+    } catch (emailError) {
+      console.error("❌ Failed to send email notification:", emailError.message);
+      // Don't fail the request if email fails
+    }
+
     res.json({
         message: req.user.firstName+ " is " + status + " in " + toUser.firstName ,
         data
