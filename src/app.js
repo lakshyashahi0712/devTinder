@@ -16,7 +16,7 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const uploadRouter = require("./routes/upload");
 const cors = require("cors")
-require("./utils/cronjob")
+//require("./utils/cronjob")
 
 
 const app = express();
