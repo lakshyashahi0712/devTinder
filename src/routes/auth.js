@@ -1,70 +1,69 @@
 const express = require("express");
 const authRouter = express.Router();
 const { User } = require("../models/user");
-const {validateSignUpData} = require("../utils/validate")
-const bcrypt = require("bcrypt")
+const { validateSignUpData } = require("../utils/validate");
+const bcrypt = require("bcrypt");
 
+// ---------------- SIGNUP ----------------
+authRouter.post("/signup", async (req, res) => {
+  try {
+    validateSignUpData(req);
+    const { firstName, lastName, email, password } = req.body;
 
-authRouter.post("/signup" , async(req,res)=>{
-try{
-  //validation of data
-  validateSignUpData(req);
-
-  const {firstName , lastName , email , password} = req.body;
-
-  //encrypt password
-  const paswordHash = await bcrypt.hash(password,10);
-  console.log(paswordHash);
-
-  //creating new instance for user model
-  const user = new User({firstName , lastName , email , password:paswordHash})
-
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = new User({ firstName, lastName, email, password: passwordHash });
     const savedUser = await user.save();
-     const token = await savedUser.getJWT();
-   
-   
-    //add token to cookie and send response back to user 
-    res.cookie("token",token);
-    res.json({message : "user added successfully" , data: savedUser})
 
-    res.send("user added successfully");
-  }catch(err){
-    res.status(400).send("error saving the user" + err.message);
+    const token = await savedUser.getJWT();
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    res.json({ message: "User added successfully", data: savedUser });
+
+  } catch (err) {
+    res.status(400).send("Error saving the user: " + err.message);
   }
-})
+});
 
+// ---------------- LOGIN ----------------
+authRouter.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) throw new Error("Invalid credentials");
 
-authRouter.post("/login",async(req,res)=>{
-  try{
-  const {email,password} = req.body;
+    const isPasswordValid = await user.validatePassword(password);
+    if (!isPasswordValid) throw new Error("Invalid credentials");
 
-  const user = await User.findOne({email:email});
-  if(!user){
-    throw new Error("invalid credintials");
-  }
-  const isPasswordValid = await user.validatePassword(password);
-  if(isPasswordValid){
-    //CREATE A JWT TOKEN
     const token = await user.getJWT();
-   
-   
-    //add token to cookie and send response back to user 
-    res.cookie("token",token);
-    res.send(user)
-  } else{
-    throw new Error("invalid credintials")
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    res.json({ message: "Login successful", user });
+
+  } catch (err) {
+    res.status(400).send("Error logging in the user: " + err.message);
   }
-}catch(err){
-  res.status(400).send("error saving the user");
-}
-})
+});
 
-
-authRouter.post("/logout", (req,res)=>{
-  res.cookie("token",null,{
+// ---------------- LOGOUT ----------------
+authRouter.post("/logout", (req, res) => {
+  res.cookie("token", null, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
     expires: new Date(Date.now())
-  })
-  res.send("logout successfully")
-})
+  });
+  res.send("Logout successfully");
+});
 
-module.exports = authRouter
+module.exports = authRouter;
