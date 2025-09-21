@@ -30,6 +30,9 @@ app.use(express.json());
 app.use(cookieParser());
 console.log("✅ Middleware added");
 
+app.get("/", (req, res) => res.send("🚀 Backend is running!"));
+app.get("/health", (req, res) => res.json({ status: "ok", serverTime: new Date() }));
+
 app.use("/",authRouter)
 app.use("/",profileRouter)
 app.use("/",requestRouter)
